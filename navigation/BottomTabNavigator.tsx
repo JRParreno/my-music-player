@@ -23,16 +23,18 @@ export default function BottomTabNavigator() {
         <BottomTab.Navigator
             initialRouteName="Home"
             tabBarOptions={{
-                activeTintColor: '#53287f', showLabel: false, keyboardHidesTabBar: true,
+                activeTintColor: commonColor.miniPlayer, showLabel: false, keyboardHidesTabBar: true,
                 style: {
                     height: PixelRatio.getPixelSizeForLayoutSize(30),
                     borderRadius: 50,
                     elevation: 0,
                     position: 'absolute',
-                    backgroundColor: commonColor.main,
+                    backgroundColor: commonColor.bottomNav,
                     bottom: 20,
                     left: 20,
                     right: 20,
+                    borderTopWidth: 0,
+                    borderTopColor: "transparent",
                     ...styles
                 },
                 labelStyle: {
@@ -95,7 +97,7 @@ const styles = StyleSheet.create({
 // https://icons.expo.fyi/
 function TabBarIcon(props: { name: React.ComponentProps<typeof Ionicons>['name']; color: string }) {
     // return <Ionicons size={25} style={{ marginBottom: -3, padding: 8, backgroundColor: commonColor.main, borderRadius: 10 }} {...props} />;
-    return <Ionicons size={25} style={{ borderWidth: 1, borderColor: commonColor.main }} {...props} />;
+    return <Ionicons size={25} {...props} />;
 }
 
 // Each tab has its own navigation stack, you can read more about this pattern here:
