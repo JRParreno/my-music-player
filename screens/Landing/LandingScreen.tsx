@@ -13,6 +13,9 @@ import RoundedSquareButton, { ButtonRoundedSquare } from "../../components/Butto
 export default function LandingScreen() {
     const navigation = useNavigation();
 
+    const handleContinue = () => {
+        navigation.navigate("Home");
+    }
 
     return (
         <WithSafeAreaView loading={false}>
@@ -20,7 +23,7 @@ export default function LandingScreen() {
                 <View style={styles.header}>
                     <Text style={styles.headerText}>My Music Player</Text>
                     <Text style={styles.subHeaderText}>Hello, thank you for installing our app!</Text>
-                    <Text style={styles.subHeaderText}>This app is a music player with beautiful and modern design, press the button at the bottom to continue</Text>
+                    <Text style={styles.subHeaderText}>{`This app is a music player with beautiful and modern design.\n\n\nPress the button to continue`}</Text>
                     <View style={styles.lottieBox}>
                         <LottieView style={{ flex: 1, }} source={require("../../assets/lottiefiles/29469-social-music-loading-animation.json")} autoPlay loop />
                     </View>
@@ -28,7 +31,7 @@ export default function LandingScreen() {
 
                 <View style={styles.bottom}>
                     <RoundedSquareButton
-                        onPress={() => { }}
+                        onPress={handleContinue}
                         type={ButtonRoundedSquare.primary}
                         title={'Continue'}
                         textStyle={{ fontFamily: font.regular, fontSize: font.title, color: '#262626' }}
@@ -58,7 +61,7 @@ const styles = StyleSheet.create({
     subHeaderText: {
         fontSize: font.title,
         fontFamily: font.regular,
-        textAlign: "justify",
+        textAlign: "center",
         paddingHorizontal: 20,
         marginTop: 20,
     },

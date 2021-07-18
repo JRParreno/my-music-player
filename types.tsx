@@ -12,13 +12,17 @@ export type RootStackParamList = {
 
 export type BottomTabParamList = {
     Home: undefined;
+    Heart: undefined;
+    Playlist: undefined;
     Settings: undefined;
-    Moments: undefined;
-    Schedule: undefined;
-    Profile: undefined;
+
 };
 
 export type LandingParamList = {
     Landing: undefined;
+};
+
+export type HomeParamList = {
+    HomeScreen: undefined;
 };
 
