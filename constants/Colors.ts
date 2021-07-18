@@ -2,8 +2,9 @@ const tintColorLight = '#2f95dc';
 const tintColorDark = '#fff';
 
 export const commonColor = {
-    main: '#D8FD00',
-    white: '#FFFFFF',
+    main: '#FFFFFF',
+    miniPlayer: '#150E50',
+    bottomNav: '#fffdd0',
     transparent: '#0000',
     secondary: '#1C53B6'
 }

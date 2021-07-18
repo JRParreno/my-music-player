@@ -32,10 +32,9 @@ export default function BottomComponent(props: IProps) {
 const styles = StyleSheet.create({
     container: {
         height: PixelRatio.getPixelSizeForLayoutSize(45),
-        backgroundColor: commonColor.white,
         justifyContent: 'flex-start',
         alignItems: 'center',
-        borderColor: undefined
+        backgroundColor: commonColor.miniPlayer
     },
     playerContainer: {
         flex: 0,

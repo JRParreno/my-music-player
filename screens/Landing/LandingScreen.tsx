@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         flexDirection: 'column',
-        backgroundColor: commonColor.white
+        backgroundColor: commonColor.main
     },
     header: {
         flex: 1,
