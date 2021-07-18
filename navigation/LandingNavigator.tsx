@@ -13,7 +13,9 @@ const LandingStack = createStackNavigator<LandingParamList>();
 
 export default function LandingAuthNavigator() {
     return (
-        <LandingStack.Navigator initialRouteName="Landing" screenOptions={{ headerShown: false }}>
+        <LandingStack.Navigator initialRouteName="Landing"
+            screenOptions={{ headerShown: false }}
+        >
             <LandingStack.Screen
                 name="Landing"
                 component={LandingNavigator}

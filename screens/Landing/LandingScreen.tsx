@@ -1,25 +1,76 @@
 import * as React from "react";
 import {
     StyleSheet,
-    Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { View, Text } from "react-native";
+import { View, Text } from "../../components/Theme/Themed";
+import { commonColor } from "../../constants/Colors";
+import { font } from "../../constants/FontStyles";
+import WithSafeAreaView from "../../components/WithSafeAreaView";
+import LottieView from 'lottie-react-native';
+import RoundedSquareButton, { ButtonRoundedSquare } from "../../components/Buttons/RoundedButton";
 
 export default function LandingScreen() {
     const navigation = useNavigation();
 
 
     return (
-        <View style={styles.container}>
+        <WithSafeAreaView loading={false}>
+            <View style={styles.container}>
+                <View style={styles.header}>
+                    <Text style={styles.headerText}>My Music Player</Text>
+                    <Text style={styles.subHeaderText}>Hello, thank you for installing our app!</Text>
+                    <Text style={styles.subHeaderText}>This app is a music player with beautiful and modern design, press the button at the bottom to continue</Text>
+                    <View style={styles.lottieBox}>
+                        <LottieView style={{ flex: 1, }} source={require("../../assets/lottiefiles/29469-social-music-loading-animation.json")} autoPlay loop />
+                    </View>
+                </View>
 
-        </View>
+                <View style={styles.bottom}>
+                    <RoundedSquareButton
+                        onPress={() => { }}
+                        type={ButtonRoundedSquare.primary}
+                        title={'Continue'}
+                        textStyle={{ fontFamily: font.regular, fontSize: font.title, color: '#262626' }}
+                    />
+                </View>
+            </View>
+        </WithSafeAreaView>
+
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F7F2F1'
+        flexDirection: 'column',
+        backgroundColor: commonColor.white
+    },
+    header: {
+        flex: 1,
+    },
+    headerText: {
+        padding: 10,
+        fontSize: font.welcome,
+        fontFamily: font.bold,
+        textAlign: 'center'
+    },
+    subHeaderText: {
+        fontSize: font.title,
+        fontFamily: font.regular,
+        textAlign: "justify",
+        paddingHorizontal: 20,
+        marginTop: 20,
+    },
+    bottom: {
+        flex: 0,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        paddingBottom: 25,
+        paddingHorizontal: 25,
+    },
+    lottieBox: {
+        flex: 1,
+        padding: 5
     }
 });
