@@ -26,7 +26,7 @@ function buttonTypeStyle(type: ButtonRoundedSquare): StyleProp<ViewStyle> {
     switch (type) {
         case ButtonRoundedSquare.primary:
             return {
-                backgroundColor: commonColor.main,
+                backgroundColor: commonColor.bottomNav,
             };
         case ButtonRoundedSquare.secondary:
             return {
