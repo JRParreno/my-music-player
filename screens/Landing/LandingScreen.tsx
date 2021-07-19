@@ -17,6 +17,8 @@ export default function LandingScreen() {
         navigation.navigate("Home");
     }
 
+
+
     return (
         <WithSafeAreaView loading={false}>
             <View style={styles.container}>
