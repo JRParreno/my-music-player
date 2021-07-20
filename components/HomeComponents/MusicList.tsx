@@ -1,6 +1,6 @@
 import * as React from "react";
 import { View, Text } from "../../components/Theme/Themed";
-import { Alert, StyleSheet, TouchableOpacity } from "react-native";
+import { Alert, Dimensions, RefreshControl, StyleSheet, TouchableOpacity } from "react-native";
 import { commonColor } from "../../constants/Colors";
 import { useContext, useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
@@ -9,65 +9,13 @@ import * as MediaLibrary from 'expo-media-library';
 import { ScrollView } from "react-native-gesture-handler";
 import { font } from "../../constants/FontStyles";
 import AudioContext from "../../contexts/AudioContext";
+import { DataProvider, RecyclerListView, LayoutProvider } from "recyclerlistview";
 
 export default function MusicList() {
-    const [audioFiles, setAudioFiles] = useState<MediaLibrary.Asset[] | null>(null);
+    const [loading, setLoading] = useState(false);
     const audioContext = useContext(AudioContext);
-
-    const getAudioFiles = async () => {
-        let media = await MediaLibrary.getAssetsAsync({
-            mediaType: 'audio',
-        });
-        media = await MediaLibrary.getAssetsAsync({
-            mediaType: 'audio',
-            first: media.totalCount,
-        });
-        audioContext.audioDispatch({ type: 'view_audio', payload: media.assets });
-        Object.keys(audioContext.audioState.audios).map((value, index) => {
-            let _devices = audioContext.audioState.audios[value];
-            console.log(_devices);
-        });
-        // console.log(Object.keys(audioContext.audioState.audios)[0]);
-
-    }
-
-    const permissionAlert = () => {
-        Alert.alert('Permission required', 'This app needs to read audio files!',
-            [
-                {
-                    text: 'Good to go',
-                    onPress: () => getPermissions(),
-                },
-                {
-                    text: 'Cancel',
-                    onPress: () => permissionAlert(),
-                }
-            ]);
-    }
-
-    const getPermissions = async () => {
-        const permission = await MediaLibrary.getPermissionsAsync();
-        if (permission) {
-            // get all audito files
-            getAudioFiles();
-        }
-
-        if (!permission.granted && permission.canAskAgain) {
-            const { status, canAskAgain } = await MediaLibrary.requestPermissionsAsync();
-            if (status === 'denied' && canAskAgain) {
-                // display alert that user allow this permission
-                permissionAlert();
-            }
-
-            if (status === 'granted') {
-                getAudioFiles();
-            }
-
-            if (status === 'denied' && !canAskAgain) {
-                // display some error
-            }
-        }
-    }
+    const dataProvider = new DataProvider((r1, r2) => r1 !== r2);
+    const [audioFiles, setAuidoFiles] = useState<MediaLibrary.Asset | null>(null);
 
     const songName = (song: string) => {
         let middle = song.indexOf('-');
@@ -76,54 +24,68 @@ export default function MusicList() {
         return titleTemp.substring(0, titleTemp.indexOf('.'));
     }
 
+    console.log(Object.keys(audioContext.audioState.audios));
+
     const singerName = (song: string) => {
         let middle = song.indexOf('-');
         let singer = song.substring(0, middle - 1);
         return singer;
     }
 
-    useEffect(() => {
-        getPermissions();
-    }, [])
+
+    const layoutProvider = new LayoutProvider((i) => 'audio', (type, dim) => {
+        dim.width = Dimensions.get('window').width;
+        dim.height = 70;
+    });
+
+    const rowRenderer = (type, item) => {
+        return (
+            <TouchableOpacity
+                key={item.id}
+                onPress={() => { }}
+            >
+                <View style={styles.childContainer}>
+                    <View style={styles.albumContainer}>
+                        <Ionicons name={'musical-notes-outline'} color={commonColor.miniPlayer} size={35} />
+                    </View>
+
+                    <View style={styles.titleContainer}>
+                        <Text style={styles.songText}
+                            numberOfLines={1}
+                        >{songName(item[0].filename)}</Text>
+                        <Text style={styles.singerText}>{singerName(item[0].filename)}</Text>
+                    </View>
+                    <View style={styles.optionContainer}>
+                        <Ionicons name={'heart-outline'} size={24} color={'#FF0000'} />
+                        <Ionicons name={'ellipsis-horizontal-outline'} size={24} color={'#858583'} style={{ paddingHorizontal: 7 }} />
+                    </View>
+
+                </View>
+            </TouchableOpacity>
+        );
+    }
 
     return (
         <View style={styles.container}>
-            {Object.keys(audioContext.audioState.audios) && (
-                <ScrollView>
-                    {Object.keys(audioContext.audioState.audios).map((value, index) => {
-                        let _audio = audioContext.audioState.audios[value];
-
-                        return (
-                            <TouchableOpacity
-                                key={index}
-                                onPress={() => { }}
-                            >
-                                <View style={styles.childContainer}>
-                                    <View style={styles.albumContainer}>
-                                        <Ionicons name={'musical-notes-outline'} color={commonColor.miniPlayer} size={35} />
-                                    </View>
-
-                                    <View style={styles.titleContainer}>
-                                        <Text style={styles.songText}
-                                            numberOfLines={1}
-                                        >{songName(_audio[0].filename)}</Text>
-                                        <Text style={styles.singerText}>{singerName(_audio[0].filename)}</Text>
-                                    </View>
-                                    <View style={styles.optionContainer}>
-                                        <Ionicons name={'heart-outline'} size={24} color={'#FF0000'} />
-                                        <Ionicons name={'ellipsis-horizontal-outline'} size={24} color={'#858583'} style={{ paddingHorizontal: 7 }} />
-                                    </View>
-
-                                </View>
-                            </TouchableOpacity>
+            {Object.keys(audioContext.audioState.audios) && dataProvider && (
+                <RecyclerListView
+                    dataProvider={dataProvider.cloneWithRows(Object.keys(audioContext.audioState.audios).map((value) => (audioContext.audioState.audios[value])))}
+                    layoutProvider={layoutProvider}
+                    rowRenderer={rowRenderer}
+                    scrollViewProps={{
+                        refreshControl: (
+                            <RefreshControl
+                                refreshing={loading}
+                                onRefresh={async () => {
+                                    setLoading(true);
+                                    dataProvider.cloneWithRows(audioContext.audioState.audios[0]);
+                                    setLoading(false);
+                                }}
+                            />
                         )
-                    })}
-
-                </ScrollView>
-
+                    }}
+                />
             )}
-
-
         </View >
     );
 }
