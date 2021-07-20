@@ -1,5 +1,6 @@
 import * as React from "react";
 import {
+    Alert,
     StyleSheet,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -9,18 +10,84 @@ import { font } from "../../constants/FontStyles";
 import WithSafeAreaView from "../../components/WithSafeAreaView";
 import LottieView from 'lottie-react-native';
 import RoundedSquareButton, { ButtonRoundedSquare } from "../../components/Buttons/RoundedButton";
+import { DataProvider } from "recyclerlistview";
+import * as MediaLibrary from 'expo-media-library';
+import { useContext, useState, useEffect } from "react";
+import AudioContext from "../../contexts/AudioContext";
 
 export default function LandingScreen() {
     const navigation = useNavigation();
-
+    const audioContext = useContext(AudioContext);
+    const [loading, setLoading] = useState(false);
     const handleContinue = () => {
         navigation.navigate("Home");
     }
 
+    const getAudioFiles = async () => {
+        setLoading(true);
+        await MediaLibrary.getAssetsAsync({
+            mediaType: 'audio',
+        }).then(data => {
+            MediaLibrary.getAssetsAsync({
+                mediaType: 'audio',
+                first: data.totalCount,
+            }).then(result => {
+                console.log(result);
+                audioContext.audioDispatch({ type: 'view_audio', payload: result.assets });
+            }).finally(() => setLoading(false));
+        });
+    }
+
+    const permissionAlert = () => {
+        Alert.alert('Permission required', 'This app needs to read audio files!',
+            [
+                {
+                    text: 'Good to go',
+                    onPress: () => getPermissions(),
+                },
+                {
+                    text: 'Cancel',
+                    onPress: () => permissionAlert(),
+                }
+            ]);
+    }
+
+    const getPermissions = async () => {
+        const permission = await MediaLibrary.getPermissionsAsync();
+        if (permission) {
+            // get all audito files
+            getAudioFiles();
+        }
+
+        if (!permission.granted && permission.canAskAgain) {
+            const { status, canAskAgain } = await MediaLibrary.requestPermissionsAsync();
+            if (status === 'denied' && canAskAgain) {
+                // display alert that user allow this permission
+                permissionAlert();
+            }
+
+            if (status === 'granted') {
+                getAudioFiles();
+            }
+
+            if (status === 'denied' && !canAskAgain) {
+                // display some error
+            }
+        }
+    }
+
+    useEffect(() => {
+        let isMounted = true;               // note mutable flag
+        if (isMounted) {
+            getPermissions();
+        }
+
+        return () => { isMounted = false };
+    }, []);
 
 
     return (
-        <WithSafeAreaView loading={false}>
+        <WithSafeAreaView loading={loading}>
             <View style={styles.container}>
                 <View style={styles.header}>
                     <Text style={styles.headerText}>My Music Player</Text>

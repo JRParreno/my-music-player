@@ -15,16 +15,22 @@ export interface IAudioActions {
     payload: Array<MediaLibrary.Asset>;
 }
 
+const songName = (song: string) => {
+    let middle = song.indexOf('-');
+    let titleTemp = song.substring(middle + 2, song.length);
+
+    return titleTemp.substring(0, titleTemp.indexOf('.'));
+}
 
 export const audioReducer = (state: typeof initialAudioState, action: IAudioActions) => {
     let audio = action.payload;
     let audios = { ...state.audios };
     switch (action.type) {
         case 'view_audio':
-            audio.forEach(function (value) {
-                audios[value.filename] = [value];
-            });
-            return { ...state, audios };
+            // audio.forEach(function (value) {
+            //     audios[value.filename] = [value];
+            // });
+            return state;
             break;
         default:
             return state;

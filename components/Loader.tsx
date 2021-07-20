@@ -1,11 +1,13 @@
 import * as React from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import LottieView from 'lottie-react-native';
+import { commonColor } from '../constants/Colors';
 
 export default function Loader() {
     return (
         <View style={styles.fullScreen}>
             <View style={styles.container}>
-                <ActivityIndicator size="large" color="#000" />
+                <LottieView style={{ flex: 1, marginBottom: 10 }} source={require("../assets/lottiefiles/892-loading-icon.json")} autoPlay loop />
             </View>
         </View>
     );
@@ -23,7 +25,9 @@ const styles = StyleSheet.create({
         zIndex: 1
     },
     container: {
-        backgroundColor: "#eee",
+        height: 140,
+        width: 140,
+        backgroundColor: commonColor.miniPlayer,
         padding: 20,
         borderRadius: 24,
         opacity: 0.8,
