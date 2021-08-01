@@ -1,7 +1,7 @@
 import { MediaTypeValue } from "expo-media-library";
 
 export default class MediaModel {
-    id: number;
+    id: string;
     filename: string;
     uri: string
     mediaType: MediaTypeValue | undefined;
@@ -11,12 +11,12 @@ export default class MediaModel {
     creationTime: number;
     modificationTime: number;
     duration: number;
-    alumId: number;
+    alumId?: string | undefined;
 
-    constructor(id: number, filename: string, uri: string, 
+    constructor(id: string, filename: string, uri: string, 
          width: number, height: number,
         creationTime: number, modificationTime: number,
-        duration: number, alumId: number,
+        duration: number, alumId: string | undefined,
         mediaSubTypes?: string[], mediaType?: MediaTypeValue
         ) {
         this.id = id;

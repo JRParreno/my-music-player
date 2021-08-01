@@ -3,15 +3,15 @@ import * as MediaLibrary from 'expo-media-library';
 import AudioModel from '../models/MediaModel';
 
 export interface IAudioState {
-    audios: { [key: string]: MediaLibrary.Asset[] };
+    audios: { [key: string]: AudioModel[] };
 }
 
 export const initialAudioState: IAudioState = {
-    audios: {}
+    audios: {},
 };
 
 export interface IAudioActions {
-    type: 'view_audio';
+    type: 'set_audio';
     payload: Array<MediaLibrary.Asset>;
 }
 
@@ -26,12 +26,29 @@ export const audioReducer = (state: typeof initialAudioState, action: IAudioActi
     let audio = action.payload;
     let audios = { ...state.audios };
     switch (action.type) {
-        case 'view_audio':
+        case 'set_audio':
             // audio.forEach(function (value) {
             //     audios[value.filename] = [value];
             // });
-            return state;
-            break;
+            audios['audios'] = [];
+            audio.map(value => {
+                let newData = new AudioModel(
+                    value.id,
+                    value.filename,
+                    value.uri,
+                    value.width,
+                    value.height,
+                    value.creationTime,
+                    value.modificationTime,
+                    value.duration,
+                    value.albumId,
+                    value.mediaSubtypes,
+                    value.mediaType
+                );
+                audios['audios'].push(newData);
+            })
+
+            return { ...state, audios };
         default:
             return state;
     }
