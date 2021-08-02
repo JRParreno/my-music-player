@@ -20,6 +20,7 @@ export type BottomTabParamList = {
 
 export type LandingParamList = {
     Landing: undefined;
+    Login: undefined
 };
 
 export type HomeParamList = {

@@ -20,10 +20,10 @@ export default function LandingScreen() {
     const audioContext = useContext(AudioContext);
     const [loading, setLoading] = useState(false);
     const handleContinue = () => {
-        if (audioContext.audioState.audios === null) {
-            getPermissions();
-        }
-        navigation.navigate("Home");
+        // if (audioContext.audioState.audios === null) {
+        //     getPermissions();
+        // }
+        navigation.navigate("Login");
     }
 
     const getAudioFiles = async () => {
@@ -90,7 +90,7 @@ export default function LandingScreen() {
 
 
     return (
-        <WithSafeAreaView loading={loading}>
+        <WithSafeAreaView loading={false}>
             <View style={styles.container}>
                 <View style={styles.header}>
                     <Text style={styles.headerText}>My Music Player</Text>

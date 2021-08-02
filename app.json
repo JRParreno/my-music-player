@@ -21,7 +21,7 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "UIUserInterfaceStyle": "automatic"
+        "UIUserInterfaceStyle": "Light"
       },
       "bundleIdentifier": "com.jrparreno.mymusicplayer"
     },
@@ -30,7 +30,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "userInterfaceStyle": "automatic",
+      "userInterfaceStyle": "light",
       "package": "com.jrparreno.mymusicplayer",
       "softwareKeyboardLayoutMode": "pan",
       "versionCode": 1000002

@@ -8,6 +8,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
 import { LandingParamList } from '../types';
 import LandingScreen from '../screens/Landing/LandingScreen';
+import LoginScreen from '../screens/Landing/LoginScreen';
 
 const LandingStack = createStackNavigator<LandingParamList>();
 
@@ -19,6 +20,10 @@ export default function LandingAuthNavigator() {
             <LandingStack.Screen
                 name="Landing"
                 component={LandingNavigator}
+            />
+            <LandingStack.Screen
+                name="Login"
+                component={LoginNavigator}
             />
         </LandingStack.Navigator>
     );
@@ -35,5 +40,11 @@ function TabBarIcon(props: { name: React.ComponentProps<typeof Ionicons>['name']
 function LandingNavigator() {
     return (
         <LandingScreen />
+    );
+}
+
+function LoginNavigator() {
+    return (
+        <LoginScreen />
     );
 }
