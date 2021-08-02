@@ -1,89 +1,142 @@
 import * as React from "react";
 import { View, Text } from "../../components/Theme/Themed";
-import { Alert, Dimensions, RefreshControl, StyleSheet, TouchableOpacity } from "react-native";
+import { Alert, Dimensions, RefreshControl, StyleSheet, TouchableOpacity, FlatList } from "react-native";
 import { commonColor } from "../../constants/Colors";
 import { useContext, useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { Audio } from "expo-av";
+import { Audio, AVPlaybackStatus } from "expo-av";
 import * as MediaLibrary from 'expo-media-library';
 import { ScrollView } from "react-native-gesture-handler";
 import { font } from "../../constants/FontStyles";
 import AudioContext from "../../contexts/AudioContext";
 import { DataProvider, RecyclerListView, LayoutProvider } from "recyclerlistview";
+import { Sound } from "expo-av/build/Audio";
+import { pause, play } from "./Controller/AudioController";
+import { ListItem, Avatar } from 'react-native-elements';
+
 
 export default function MusicList() {
     const [loading, setLoading] = useState(false);
     const audioContext = useContext(AudioContext);
     const dataProvider = new DataProvider((r1, r2) => r1 !== r2);
-    const [audioFiles, setAuidoFiles] = useState<MediaLibrary.Asset | null>(null);
+    const [playback, setPlayback] = useState<Sound | undefined>(undefined);
+    const [statusObj, setStatusObj] = useState<AVPlaybackStatus | undefined>(undefined);
+    const [currentAudio, setCurrentAudio] = useState<MediaLibrary.Asset | null>(null);
+    const [audioFiles, setAudioFiles] = useState<MediaLibrary.Asset[] | null>(null)
 
-    const songName = (song: string) => {
-        let middle = song.indexOf('-');
-        let titleTemp = song.substring(middle + 2, song.length);
+    const handleAudioPress = async (audio: MediaLibrary.Asset) => {
 
-        return titleTemp.substring(0, titleTemp.indexOf('.'));
+        // stat song    
+        if (statusObj === undefined) {
+            const playbackObj = new Audio.Sound();
+            const status = await play(playbackObj, audio);
+            return [setPlayback(playbackObj), setStatusObj(status), setCurrentAudio(audio)];
+        }
+
+        // pause audio
+        if (statusObj.isLoaded && statusObj.isPlaying && playback) {
+            const status = await pause(playback, audio);
+            return [setStatusObj(status)];
+        }
+
+        // resume audio
+        if (statusObj.isLoaded && !statusObj.isPlaying && playback && currentAudio) {
+            if (currentAudio.id === audio.id) {
+                console.log('audio is resume playing');
+                const status = await playback.playAsync();
+                return [setStatusObj(status)];
+            }
+        }
+
+
+        // select another audio
+        //         if (statusObj.isLoaded && currentAudio.id !== audio.id) {
+        //             const status = await playNext(playbackObj, audio.uri);
+
+
+        //             // select another audio
+        // export const playNext = async (playbackObj, uri) => {
+        //     try {
+        //       await playbackObj.stopAsync();
+        //       await playbackObj.unloadAsync();
+        //       return await play(playbackObj, uri);
+        //     } catch (error) {
+        //       console.log('error inside playNext helper method', error.message);
+        //     }
+        //   };
+        //             const index = audioFiles.findIndex(({ id }) => id === audio.id);
+        //             updateState(context, {
+        //                 currentAudio: audio,
+        //                 statusObj: status,
+        //                 isPlaying: true,
+        //                 currentAudioIndex: index,
+        //                 isPlayListRunning: false,
+        //                 activePlayList: [],
+        //                 ...playListInfo,
+        //             });
+        //             return storeAudioForNextOpening(audio, index);
+        //         }
     }
 
-    console.log(Object.keys(audioContext.audioState.audios));
-
-    const singerName = (song: string) => {
-        let middle = song.indexOf('-');
-        let singer = song.substring(0, middle - 1);
-        return singer;
+    const getAudioFiles = async () => {
+        // setLoading(true);
+        await MediaLibrary.getAssetsAsync({
+            mediaType: 'audio',
+        }).then(data => {
+            MediaLibrary.getAssetsAsync({
+                mediaType: 'audio',
+                first: data.totalCount,
+            }).then(result => {
+                // console.log(result);
+                // audioContext.audioDispatch({ type: 'set_audio', payload: result.assets });
+            }).finally(() => setLoading(false));
+        });
+        // setAudioFiles(audioContext.audioState.audios['audioFiles']);
     }
-
 
     const layoutProvider = new LayoutProvider((i) => 'audio', (type, dim) => {
         dim.width = Dimensions.get('window').width;
         dim.height = 70;
     });
 
-    const rowRenderer = (type, item) => {
-        return (
-            <TouchableOpacity
-                key={item.id}
-                onPress={() => { }}
-            >
-                <View style={styles.childContainer}>
-                    <View style={styles.albumContainer}>
-                        <Ionicons name={'musical-notes-outline'} color={commonColor.miniPlayer} size={35} />
-                    </View>
+    const renderItem = ({ item }) => (
+        <ListItem bottomDivider >
+            <Avatar source={{ uri: `${item.uri.substring(0, (item.uri.lastIndexOf('/') + 1))}cover.jpg` }} />
+            <ListItem.Content>
+                <ListItem.Title>{songName(item.filename)}</ListItem.Title>
+                <ListItem.Subtitle>{singerName(item.filename)}</ListItem.Subtitle>
+            </ListItem.Content>
+            <ListItem.Chevron />
+        </ListItem>
+    )
 
-                    <View style={styles.titleContainer}>
-                        <Text style={styles.songText}
-                            numberOfLines={1}
-                        >{songName(item[0].filename)}</Text>
-                        <Text style={styles.singerText}>{singerName(item[0].filename)}</Text>
-                    </View>
-                    <View style={styles.optionContainer}>
-                        <Ionicons name={'heart-outline'} size={24} color={'#FF0000'} />
-                        <Ionicons name={'ellipsis-horizontal-outline'} size={24} color={'#858583'} style={{ paddingHorizontal: 7 }} />
-                    </View>
+    const songName = (song: string) => {
+        let middle = song.lastIndexOf('-');
+        let titleTemp = song.substring(middle + 2, song.length);
 
-                </View>
-            </TouchableOpacity>
-        );
+        return titleTemp.substring(0, titleTemp.indexOf('.'));
     }
+
+    const singerName = (song: string) => {
+        let middle = song.lastIndexOf('-');
+        let singer = song.substring(0, middle - 1);
+        return singer;
+    }
+
+    const keyExtractor = (item, index) => index.toString();
+
+    useEffect(() => {
+        getAudioFiles();
+        // console.log(audioContext.audioState.audios['audios']);
+    }, [])
 
     return (
         <View style={styles.container}>
-            {Object.keys(audioContext.audioState.audios) && dataProvider && (
-                <RecyclerListView
-                    dataProvider={dataProvider.cloneWithRows(Object.keys(audioContext.audioState.audios).map((value) => (audioContext.audioState.audios[value])))}
-                    layoutProvider={layoutProvider}
-                    rowRenderer={rowRenderer}
-                    scrollViewProps={{
-                        refreshControl: (
-                            <RefreshControl
-                                refreshing={loading}
-                                onRefresh={async () => {
-                                    setLoading(true);
-                                    dataProvider.cloneWithRows(audioContext.audioState.audios[0]);
-                                    setLoading(false);
-                                }}
-                            />
-                        )
-                    }}
+            {audioContext.audioState.audios && (
+                <FlatList
+                    keyExtractor={keyExtractor}
+                    data={audioContext.audioState.audios['audios']}
+                    renderItem={renderItem}
                 />
             )}
         </View >
@@ -100,17 +153,19 @@ const styles = StyleSheet.create({
         flex: 0,
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: commonColor.main,
-        borderBottomWidth: 1,
-        borderBottomColor: "#93938A"
+    },
+    musicContainer: {
+        flex: 4,
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     titleContainer: {
         flex: 4,
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'flex-start',
-        paddingVertical: 7,
-        paddingHorizontal: 10,
+        // paddingVertical: 7,
+        // paddingHorizontal: 10,
     },
     optionContainer: {
         flex: 1,

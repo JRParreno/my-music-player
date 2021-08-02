@@ -20,7 +20,10 @@ export default function LandingScreen() {
     const audioContext = useContext(AudioContext);
     const [loading, setLoading] = useState(false);
     const handleContinue = () => {
-        navigation.navigate("Home");
+        // if (audioContext.audioState.audios === null) {
+        //     getPermissions();
+        // }
+        navigation.navigate("Login");
     }
 
     const getAudioFiles = async () => {
@@ -32,8 +35,8 @@ export default function LandingScreen() {
                 mediaType: 'audio',
                 first: data.totalCount,
             }).then(result => {
-                console.log(result);
-                audioContext.audioDispatch({ type: 'view_audio', payload: result.assets });
+                console.log(result.totalCount);
+                audioContext.audioDispatch({ type: 'set_audio', payload: result.assets });
             }).finally(() => setLoading(false));
         });
     }
@@ -87,7 +90,7 @@ export default function LandingScreen() {
 
 
     return (
-        <WithSafeAreaView loading={loading}>
+        <WithSafeAreaView loading={false}>
             <View style={styles.container}>
                 <View style={styles.header}>
                     <Text style={styles.headerText}>My Music Player</Text>
